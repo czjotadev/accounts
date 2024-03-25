@@ -33,7 +33,7 @@ model Deposit {
   id        Int                @id @default(autoincrement())
   ammount   Float
   accountId Int                @map("account_id")
-  status    transaction_status
+  status    transaction_status @default(APPROVED)
   createdAt DateTime           @default(now()) @map("created_at")
   updatedAt DateTime           @default(now()) @map("updated_at")
   deletedAt DateTime?          @map("deleted_at")
@@ -47,7 +47,7 @@ model Withdraw {
   id        Int                @id @default(autoincrement())
   ammount   Float
   accountId Int                @map("account_id")
-  status    transaction_status
+  status    transaction_status @default(APPROVED)
   createdAt DateTime           @default(now()) @map("created_at")
   updatedAt DateTime           @default(now()) @map("updated_at")
   deletedAt DateTime?          @map("deleted_at")
@@ -62,7 +62,7 @@ model Transfer {
   ammount         Float
   originAccountId Int                @map("origin_account_id")
   targetAccountId Int                @map("target_account")
-  status          transaction_status
+  status          transaction_status @default(APPROVED)
   createdAt       DateTime           @default(now()) @map("created_at")
   updatedAt       DateTime           @default(now()) @map("updated_at")
   deletedAt       DateTime?          @map("deleted_at")

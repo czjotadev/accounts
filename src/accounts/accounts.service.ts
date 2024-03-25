@@ -1,26 +1,40 @@
-import { Injectable } from '@nestjs/common';
+/* eslint-disable prettier/prettier */
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateAccountDto } from './dto/create-account.dto';
-import { UpdateAccountDto } from './dto/update-account.dto';
+import { PrismaClient } from '@prisma/client';
+import { AccountInterface } from './interfaces/account.interface';
 
 @Injectable()
 export class AccountsService {
-  create(createAccountDto: CreateAccountDto) {
-    return 'This action adds a new account';
-  }
+  constructor(private prismaClient: PrismaClient) {}
+  async create(createAccountDto: CreateAccountDto): Promise<AccountInterface> {
+    try {
+      const { accountNumber, balance } = createAccountDto;
 
-  findAll() {
-    return `This action returns all accounts`;
-  }
+      const verifyAccountExists = await this.prismaClient.account.findFirst({
+        where: {
+          accountNumber,
+        },
+      });
 
-  findOne(id: number) {
-    return `This action returns a #${id} account`;
-  }
+      if (verifyAccountExists)
+        throw new Error(
+          `Já existe uma conta registrada com o número informado: ${accountNumber}`,
+        );
 
-  update(id: number, updateAccountDto: UpdateAccountDto) {
-    return `This action updates a #${id} account`;
-  }
+      const account = await this.prismaClient.account.create({
+        data: {
+          accountNumber,
+          balance: balance ? balance : 0,
+        },
+      });
 
-  remove(id: number) {
-    return `This action removes a #${id} account`;
+      return account;
+    } catch (error) {
+      throw new HttpException(
+        { message: error.message },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
