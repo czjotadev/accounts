@@ -32,13 +32,13 @@ model Account {
 model Deposit {
   id        Int                @id @default(autoincrement())
   ammount   Float
-  accountId Int                @map("account_id")
+  accountNumber Int                @map("account_number")
   status    transaction_status @default(APPROVED)
   createdAt DateTime           @default(now()) @map("created_at")
   updatedAt DateTime           @default(now()) @map("updated_at")
   deletedAt DateTime?          @map("deleted_at")
 
-  account Account @relation(fields: [accountId], references: [id])
+  account Account @relation(fields: [accountNumber], references: [accountNumber])
 
   @@map("deposits")
 }
@@ -46,13 +46,13 @@ model Deposit {
 model Withdraw {
   id        Int                @id @default(autoincrement())
   ammount   Float
-  accountId Int                @map("account_id")
+  accountNumber Int                @map("account_number")
   status    transaction_status @default(APPROVED)
   createdAt DateTime           @default(now()) @map("created_at")
   updatedAt DateTime           @default(now()) @map("updated_at")
   deletedAt DateTime?          @map("deleted_at")
 
-  account Account @relation(fields: [accountId], references: [id])
+  account Account @relation(fields: [accountNumber], references: [accountNumber])
 
   @@map("withidrawals")
 }
@@ -60,15 +60,15 @@ model Withdraw {
 model Transfer {
   id              Int                @id @default(autoincrement())
   ammount         Float
-  originAccountId Int                @map("origin_account_id")
-  targetAccountId Int                @map("target_account")
+  originAccountNumber Int                @map("origin_account_number")
+  targetAccountNumber Int                @map("target_account_number")
   status          transaction_status @default(APPROVED)
   createdAt       DateTime           @default(now()) @map("created_at")
   updatedAt       DateTime           @default(now()) @map("updated_at")
   deletedAt       DateTime?          @map("deleted_at")
 
-  originAccount Account? @relation("origin_account", fields: [originAccountId], references: [id])
-  targetAccoun  Account? @relation("target_account", fields: [targetAccountId], references: [id])
+  originAccount Account? @relation("origin_account", fields: [originAccountNumber], references: [accountNumber])
+  targetAccoun  Account? @relation("target_account", fields: [targetAccountNumber], references: [accountNumber])
 
   @@map("transfers")
 }

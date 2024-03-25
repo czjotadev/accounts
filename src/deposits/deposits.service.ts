@@ -1,26 +1,40 @@
-import { Injectable } from '@nestjs/common';
+/* eslint-disable prettier/prettier */
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateDepositDto } from './dto/create-deposit.dto';
-import { UpdateDepositDto } from './dto/update-deposit.dto';
+import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class DepositsService {
-  create(createDepositDto: CreateDepositDto) {
-    return 'This action adds a new deposit';
-  }
+  constructor(private prismaClient: PrismaClient) {}
+  async create(createDepositDto: CreateDepositDto) {
+    try {
+      const { accountNumber, ammount } = createDepositDto;
 
-  findAll() {
-    return `This action returns all deposits`;
-  }
+      const verifyAccount = await this.prismaClient.account.findFirstOrThrow({
+        where: { accountNumber },
+      });
 
-  findOne(id: number) {
-    return `This action returns a #${id} deposit`;
-  }
+      const deposit = await this.prismaClient.deposit.create({
+        data: {
+          accountNumber,
+          ammount,
+        },
+      });
 
-  update(id: number, updateDepositDto: UpdateDepositDto) {
-    return `This action updates a #${id} deposit`;
-  }
+      const account = await this.prismaClient.account.update({
+        where: { accountNumber },
+        data: {
+          balance: verifyAccount.balance + ammount
+        }
+      })
 
-  remove(id: number) {
-    return `This action removes a #${id} deposit`;
+      return { account, deposit }
+
+    } catch (error) {
+      throw new HttpException(
+        { message: 'Não foi possível realizar o depósito. Verifique o número da conta.' },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }
