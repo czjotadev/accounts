@@ -1,26 +1,41 @@
-import { Injectable } from '@nestjs/common';
+/* eslint-disable prettier/prettier */
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateWithdrawalDto } from './dto/create-withdrawal.dto';
-import { UpdateWithdrawalDto } from './dto/update-withdrawal.dto';
+import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class WithdrawalsService {
-  create(createWithdrawalDto: CreateWithdrawalDto) {
-    return 'This action adds a new withdrawal';
-  }
+  constructor(private prismaClient: PrismaClient) {}
+  async create(createWithdrawalDto: CreateWithdrawalDto) {
+    try {
+      const { accountNumber, ammount } = createWithdrawalDto;
 
-  findAll() {
-    return `This action returns all withdrawals`;
-  }
+      const verifyAccount = await this.prismaClient.account.findFirstOrThrow({
+        where: { accountNumber },
+      });
 
-  findOne(id: number) {
-    return `This action returns a #${id} withdrawal`;
-  }
+      if (verifyAccount.balance < ammount) throw new Error();
 
-  update(id: number, updateWithdrawalDto: UpdateWithdrawalDto) {
-    return `This action updates a #${id} withdrawal`;
-  }
+      const account = await this.prismaClient.account.update({
+        where: { accountNumber },
+        data: {
+          balance: verifyAccount.balance - ammount,
+        },
+      });
 
-  remove(id: number) {
-    return `This action removes a #${id} withdrawal`;
+      const withdrawal = await this.prismaClient.withdraw.create({
+        data: { accountNumber, ammount },
+      });
+
+      return { account, withdrawal };
+    } catch (error) {
+      throw new HttpException(
+        {
+          message:
+            'Não foi possível realizar o Saque. Verifique o saldo e o número da conta.',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }
