@@ -1,0 +1,82 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id            Int       @id @default(autoincrement())
+  accountNumber Int       @unique @map("account_number")
+  balance       Float
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @default(now()) @map("updated_at")
+  deletedAt     DateTime? @map("deleted_at")
+
+  deposits      Deposit[]
+  originAccount Transfer[] @relation("origin_account")
+  targetAccoun  Transfer[] @relation("target_account")
+  Withdraw      Withdraw[]
+
+  @@map("accounts")
+}
+
+model Deposit {
+  id        Int                @id @default(autoincrement())
+  ammount   Float
+  accountId Int                @map("account_id")
+  status    transaction_status
+  createdAt DateTime           @default(now()) @map("created_at")
+  updatedAt DateTime           @default(now()) @map("updated_at")
+  deletedAt DateTime?          @map("deleted_at")
+
+  account Account @relation(fields: [accountId], references: [id])
+
+  @@map("deposits")
+}
+
+model Withdraw {
+  id        Int                @id @default(autoincrement())
+  ammount   Float
+  accountId Int                @map("account_id")
+  status    transaction_status
+  createdAt DateTime           @default(now()) @map("created_at")
+  updatedAt DateTime           @default(now()) @map("updated_at")
+  deletedAt DateTime?          @map("deleted_at")
+
+  account Account @relation(fields: [accountId], references: [id])
+
+  @@map("withidrawals")
+}
+
+model Transfer {
+  id              Int                @id @default(autoincrement())
+  ammount         Float
+  originAccountId Int                @map("origin_account_id")
+  targetAccountId Int                @map("target_account")
+  status          transaction_status
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @default(now()) @map("updated_at")
+  deletedAt       DateTime?          @map("deleted_at")
+
+  originAccount Account? @relation("origin_account", fields: [originAccountId], references: [id])
+  targetAccoun  Account? @relation("target_account", fields: [targetAccountId], references: [id])
+
+  @@map("transfers")
+}
+
+enum transaction_status {
+  CREATED
+  PENDING
+  APPROVED
+  CANCELED
+  REPROVED
+}
