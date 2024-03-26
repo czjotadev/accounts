@@ -1,16 +1,20 @@
 /* eslint-disable prettier/prettier */
 import { Controller, Post, Body } from '@nestjs/common';
-import { WithdrawalsService } from './withdrawals.service';
 import { CreateWithdrawalDto } from './dto/create-withdrawal.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { TransactionsQueueService } from 'src/transactions-queue/transactions-queue.service';
 
 @Controller('withdrawals')
 export class WithdrawalsController {
-  constructor(private readonly withdrawalsService: WithdrawalsService) {}
+  constructor(private transactionsQueueService: TransactionsQueueService) {}
 
   @ApiTags('Withdrawals')
   @Post()
-  create(@Body() createWithdrawalDto: CreateWithdrawalDto) {
-    return this.withdrawalsService.create(createWithdrawalDto);
+  async create(@Body() createWithdrawalDto: CreateWithdrawalDto) {
+    await this.transactionsQueueService.setTransactionsQueue({
+      transcationType: 'transfer',
+      ...createWithdrawalDto,
+    });
+    return { message: 'A transação foi adicionada a fila de operações' }
   }
 }

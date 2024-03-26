@@ -5,7 +5,9 @@ import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class DepositsService {
-  constructor(private prismaClient: PrismaClient) {}
+  constructor(
+    private prismaClient: PrismaClient,
+  ) {}
   async create(createDepositDto: CreateDepositDto) {
     try {
       const { accountNumber, ammount } = createDepositDto;
@@ -24,15 +26,17 @@ export class DepositsService {
       const account = await this.prismaClient.account.update({
         where: { accountNumber },
         data: {
-          balance: verifyAccount.balance + ammount
-        }
-      })
+          balance: verifyAccount.balance + ammount,
+        },
+      });
 
-      return { account, deposit }
-
+      return { account, deposit };
     } catch (error) {
       throw new HttpException(
-        { message: 'Não foi possível realizar o depósito. Verifique o número da conta.' },
+        {
+          message:
+            'Não foi possível realizar o depósito. Verifique o número da conta.',
+        },
         HttpStatus.BAD_REQUEST,
       );
     }

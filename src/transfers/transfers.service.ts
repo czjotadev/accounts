@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateTransferDto } from './dto/create-transfer.dto';
 import { PrismaClient } from '@prisma/client';

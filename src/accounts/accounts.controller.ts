@@ -7,7 +7,7 @@ import {
 import { AccountsService } from './accounts.service';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { AccountInterface } from './interfaces/account.interface';
-import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('accounts')
 export class AccountsController {
