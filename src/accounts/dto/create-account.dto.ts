@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsInt,
   IsNotEmpty,
@@ -9,6 +10,12 @@ import {
 } from 'class-validator';
 
 export class CreateAccountDto {
+  @ApiProperty({
+    description: 'Número da conta',
+    minimum: 1,
+    maximum: 99999,
+    type: Number,
+  })
   @IsInt({
     message: 'O campo "Número da Conta" precisa ser um número inteiro.',
   })
@@ -21,6 +28,14 @@ export class CreateAccountDto {
   })
   accountNumber: number;
 
+  @ApiProperty({
+    description: 'Saldo da conta',
+    minimum: 0,
+    maximum: 9999999999,
+    type: Number,
+    required: false
+  })
+  @ApiProperty()
   @IsOptional()
   @IsNumber(
     { allowNaN: false, allowInfinity: false, maxDecimalPlaces: 5 },

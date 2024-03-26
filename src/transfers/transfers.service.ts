@@ -1,26 +1,65 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateTransferDto } from './dto/create-transfer.dto';
-import { UpdateTransferDto } from './dto/update-transfer.dto';
+import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class TransfersService {
-  create(createTransferDto: CreateTransferDto) {
-    return 'This action adds a new transfer';
-  }
+  constructor (private prismaClient: PrismaClient) {}
+  async create(createTransferDto: CreateTransferDto) {
+    try {
+      const { originAccountNumber, targetAccountNumber, ammount } = createTransferDto;
 
-  findAll() {
-    return `This action returns all transfers`;
-  }
+      if (originAccountNumber === targetAccountNumber ) throw new Error('Os números das contas para realizar a transferia devem ser diferentes.')
 
-  findOne(id: number) {
-    return `This action returns a #${id} transfer`;
-  }
+      const existsOriginAccount = await this.prismaClient.account.findFirstOrThrow({
+        where: {
+          accountNumber: originAccountNumber
+        }
+      })
 
-  update(id: number, updateTransferDto: UpdateTransferDto) {
-    return `This action updates a #${id} transfer`;
-  }
+      const existsTargetAccountNumber = await this.prismaClient.account.findFirstOrThrow({
+        where: {
+          accountNumber: targetAccountNumber
+        }
+      })
 
-  remove(id: number) {
-    return `This action removes a #${id} transfer`;
+      if(existsOriginAccount.balance < ammount) throw new Error('Saldo insuficiente para realizar a transferencia.')
+
+      const transfer = await this.prismaClient.transfer.create({
+        data: {
+          ammount,
+          originAccountNumber: existsTargetAccountNumber.accountNumber,
+          targetAccountNumber: existsTargetAccountNumber.accountNumber
+        }
+      })
+
+      const originAccount = await this.prismaClient.account.update({
+        where: {
+          accountNumber: existsOriginAccount.accountNumber
+        },
+        data: {
+          balance: existsOriginAccount.balance - ammount
+        }
+      })
+
+      const targetAccount = await this.prismaClient.account.update({
+        where: {
+          accountNumber: existsTargetAccountNumber.accountNumber
+        },
+        data: {
+          balance: existsTargetAccountNumber.balance + ammount
+        }
+      })
+
+      return { transfer, originAccount, targetAccount };
+    } catch (error) {
+      throw new HttpException(
+        {
+          message:
+            error.message,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }
