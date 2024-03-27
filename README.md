@@ -26,3 +26,13 @@ $ npm run start:dev
 # unit tests
 $ npm run test
 ```
+
+## Aplication Access
+
+```bash
+# API
+http://localhost:3000
+
+# Swagger
+http://localhost:3000/docs
+```
