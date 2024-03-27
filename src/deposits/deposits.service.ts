@@ -2,12 +2,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateDepositDto } from './dto/create-deposit.dto';
 import { PrismaClient } from '@prisma/client';
+import { DepositInterface } from './interfaces/deposit.interface';
 
 @Injectable()
 export class DepositsService {
-  constructor(
-    private prismaClient: PrismaClient,
-  ) {}
+  constructor(private prismaClient: PrismaClient) {}
   async create(createDepositDto: CreateDepositDto) {
     try {
       const { accountNumber, ammount } = createDepositDto;
@@ -36,6 +35,34 @@ export class DepositsService {
         {
           message:
             'Não foi possível realizar o depósito. Verifique o número da conta.',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  async findAll(): Promise<DepositInterface[]> {
+    try {
+      return await this.prismaClient.deposit.findMany();
+    } catch (error) {
+      throw new HttpException(
+        {
+          message: error,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  async find(id: number): Promise<DepositInterface> {
+    try {
+      return await this.prismaClient.deposit.findFirstOrThrow({
+        where: { id },
+      });
+    } catch (error) {
+      throw new HttpException(
+        {
+          message: error,
         },
         HttpStatus.BAD_REQUEST,
       );

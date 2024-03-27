@@ -1,14 +1,14 @@
 /* eslint-disable prettier/prettier */
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TransfersService } from './transfers.service';
 import { TransfersController } from './transfers.controller';
 import { PrismaClient } from '@prisma/client';
-import { TransactionsQueueService } from 'src/transactions-queue/transactions-queue.service';
 import { TransactionsQueueModule } from 'src/transactions-queue/transactions-queue.module';
 
 @Module({
-  imports: [TransactionsQueueModule],
+  imports: [forwardRef(() => TransactionsQueueModule)],
   controllers: [TransfersController],
-  providers: [TransfersService, PrismaClient, TransactionsQueueService],
+  providers: [TransfersService, PrismaClient],
+  exports: [TransfersService]
 })
 export class TransfersModule {}

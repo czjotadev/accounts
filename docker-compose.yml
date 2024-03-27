@@ -8,21 +8,15 @@ services:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_DATABASE}
     ports:
-      - "3306:3306"
+      - ${DB_PORT}:3306
 
-  rabbitmq:
-    container_name: 'rabbitmq'
-    image: rabbitmq:latest
+  redis:
+    image: redis:latest
+    container_name: redis
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - ${REDIS_PORT}:${REDIS_PORT}
+    volumes:
+      - redis_data:/data
 
-  # nestjs_app:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     - mysql
-  #     - rabbitmq
+volumes:
+  redis_data:

@@ -37,4 +37,28 @@ export class AccountsService {
       );
     }
   }
+
+  async find(id: number): Promise<AccountInterface> {
+    try {
+      return await this.prismaClient.account.findFirstOrThrow({
+        where: { id },
+      });
+    } catch (error) {
+      throw new HttpException(
+        { message: error.message },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async findAll(): Promise<AccountInterface[]> {
+    try {
+      return await this.prismaClient.account.findMany();
+    } catch (error) {
+      throw new HttpException(
+        { message: error.message },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 }

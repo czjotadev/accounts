@@ -14,7 +14,7 @@ import { BullModule } from '@nestjs/bull';
     TransfersModule,
     TransactionsQueueModule,
     BullModule.forRoot({
-      redis: { host: 'localhost', port: 6379 },
+      redis: { host: process.env.REDIS_HOST, port: +process.env.REDIS_PORT },
     }),
   ],
   controllers: [],
