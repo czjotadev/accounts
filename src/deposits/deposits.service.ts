@@ -47,7 +47,7 @@ export class DepositsService {
     } catch (error) {
       throw new HttpException(
         {
-          message: error,
+          message: error.message,
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -62,7 +62,7 @@ export class DepositsService {
     } catch (error) {
       throw new HttpException(
         {
-          message: error,
+          message: error.message,
         },
         HttpStatus.BAD_REQUEST,
       );
